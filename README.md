@@ -13,10 +13,10 @@ npm install "C:\caminho\para\socket-opa-chat-1.0.0.tgz"
 
 ## Inicialização
 
-Importe e instancie a classe passando as configurações obrigatórias.
+Importe e instancie a classe. Agora você também pode importar o Enum de eventos.
 
 ```javascript
-const SocketOpaChat = require('socket-opa-chat');
+const { SocketOpaChat, SocketOpaEvent } = require('socket-opa-chat');
 
 const chat = new SocketOpaChat({
     url: 'https://giganet-sac.com.br', // Obrigatório: URL do servidor
@@ -25,6 +25,19 @@ const chat = new SocketOpaChat({
     opa_tipo: 'page'                   // Opcional (padrão: 'page')
 });
 ```
+
+## Enum de Eventos `SocketOpaEvent`
+
+Para evitar usar strings soltas ("magic strings"), utilize o Enum exportado:
+
+*   `SocketOpaEvent.CONNECTED`: 'connected'
+*   `SocketOpaEvent.DISCONNECTED`: 'disconnected'
+*   `SocketOpaEvent.ERROR`: 'error'
+*   `SocketOpaEvent.MESSAGE`: 'message'
+*   `SocketOpaEvent.CHAT_MESSAGE`: 'chat_message'
+*   `SocketOpaEvent.CHAT_MEDIA`: 'chat_media'
+*   `SocketOpaEvent.HISTORY_LOG`: 'history_log'
+*   `SocketOpaEvent.RAW_EVENT`: 'raw_event'
 
 ## Métodos Disponíveis
 
@@ -58,7 +71,7 @@ chat.sendMedia({
 
 ### `getHistory()`
 Solicita o histórico de mensagens do atendimento atual.
-*   **Retorno**: O histórico não é retornado diretamente, mas sim emitido através do evento `history_log`.
+*   **Retorno**: O histórico não é retornado diretamente, mas sim emitido através do evento `history_log` (ou `SocketOpaEvent.HISTORY_LOG`).
 
 ```javascript
 chat.getHistory();
@@ -88,68 +101,68 @@ chat.emitRaw(["meu_evento", { id: 123 }]);
 
 ## Eventos (Listeners)
 
-A classe extende `EventEmitter`, então você pode escutar eventos usando `.on()`.
+A classe extende `EventEmitter`, então você pode escutar eventos usando `.on()`. Recomendamos usar o `SocketOpaEvent`.
 
-### `chat_message`
-Disparado quando uma nova mensagem de texto é recebida do servidor. A biblioteca já trata o parse de mensagens simples e menus.
+### `chat_message` (`SocketOpaEvent.CHAT_MESSAGE`)
+Disparado quando uma nova mensagem de texto é recebida do servidor.
 
 ```javascript
-chat.on('chat_message', (mensagem) => {
+chat.on(SocketOpaEvent.CHAT_MESSAGE, (mensagem) => {
     console.log('Nova mensagem recebida:', mensagem);
 });
 ```
 
-### `chat_media`
+### `chat_media` (`SocketOpaEvent.CHAT_MEDIA`)
 Disparado quando uma mensagem de mídia (imagem/arquivo) é recebida. Fornece o objeto da mídia contendo link local, thumb, etc.
 
 ```javascript
-chat.on('chat_media', (mediaObject) => {
+chat.on(SocketOpaEvent.CHAT_MEDIA, (mediaObject) => {
     // mediaObject.local contém o caminho relativo da imagem
     console.log('Mídia recebida:', mediaObject.local);
 });
 ```
 
-### `history_log`
+### `history_log` (`SocketOpaEvent.HISTORY_LOG`)
 Disparado após chamar `getHistory()`, contendo a lista (array) de mensagens antigas.
 
 ```javascript
-chat.on('history_log', (listaMensagens) => {
+chat.on(SocketOpaEvent.HISTORY_LOG, (listaMensagens) => {
     console.log('Histórico carregado:', listaMensagens);
 });
 ```
 
-### `connected`
+### `connected` (`SocketOpaEvent.CONNECTED`)
 Disparado quando a conexão é estabelecida com sucesso.
 
 ```javascript
-chat.on('connected', (socketId) => {
+chat.on(SocketOpaEvent.CONNECTED, (socketId) => {
     console.log('Conectado! ID do Socket:', socketId);
 });
 ```
 
-### `disconnected`
+### `disconnected` (`SocketOpaEvent.DISCONNECTED`)
 Disparado quando a conexão cai ou é fechada.
 
 ```javascript
-chat.on('disconnected', (motivo) => {
+chat.on(SocketOpaEvent.DISCONNECTED, (motivo) => {
     console.log('Desconectado:', motivo);
 });
 ```
 
-### `error`
+### `error` (`SocketOpaEvent.ERROR`)
 Disparado em caso de erro de conexão.
 
 ```javascript
-chat.on('error', (erro) => {
+chat.on(SocketOpaEvent.ERROR, (erro) => {
     console.error('Erro de conexão:', erro);
 });
 ```
 
-### `raw_event`
+### `raw_event` (`SocketOpaEvent.RAW_EVENT`)
 Disparado para **qualquer** evento que chegar do socket. Útil para debug ou para tratar eventos que a lib não parseia automaticamente.
 
 ```javascript
-chat.on('raw_event', (dados) => {
+chat.on(SocketOpaEvent.RAW_EVENT, (dados) => {
     // dados = { event: "nomeDoEvento", args: [...] }
     console.log('Evento Cru:', dados.event, dados.args);
 });
@@ -158,7 +171,7 @@ chat.on('raw_event', (dados) => {
 ## Exemplo Completo
 
 ```javascript
-const SocketOpaChat = require('socket-opa-chat');
+const { SocketOpaChat, SocketOpaEvent } = require('socket-opa-chat');
 
 const chat = new SocketOpaChat({
     url: 'https://giganet-sac.com.br',
@@ -167,7 +180,7 @@ const chat = new SocketOpaChat({
 });
 
 // Configurar listeners
-chat.on('connected', (id) => {
+chat.on(SocketOpaEvent.CONNECTED, (id) => {
     console.log('Online:', id);
     // Pede histórico ao conectar
     chat.getHistory();
@@ -176,7 +189,7 @@ chat.on('connected', (id) => {
 // Usando o novo helper simplificado para mensagens
 chat.onMessage((msg) => console.log('BOT:', msg));
 
-chat.on('history_log', (msgs) => console.log('Total histórico:', msgs.length));
+chat.on(SocketOpaEvent.HISTORY_LOG, (msgs) => console.log('Total histórico:', msgs.length));
 
 // Conectar
 chat.connect();

@@ -160,7 +160,8 @@ class SocketOpaChat extends EventEmitter {
                     if (typeof text === 'object') {
                         text = text.titulo || JSON.stringify(text);
                     }
-                    this.emit("chat_message", text);
+                    console.log("[SocketOpaChat] chat_message:", payload);
+                    this.emit("chat_message", payload);
                 }
             }
         } catch (error) {
