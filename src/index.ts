@@ -194,19 +194,7 @@ export class SocketOpaChat extends EventEmitter {
             const payload = args.find(a => typeof a === 'object' && (a.mensagem || a.tipo || a.conteudo));
 
             if (payload) {
-                // Check for Media
-                if (payload.tipo === 'midia' && (payload.objeto || payload.conteudo)) {
-                    this.emit(SocketOpaEvent.CHAT_MEDIA, payload.objeto || payload.conteudo);
-                }
-                // Check for Text
-                else if (payload.mensagem || payload.conteudo) {
-                    let text = payload.mensagem || payload.conteudo;
-                    // Handle menu objects or other complex text structures
-                    if (typeof text === 'object') {
-                        text = (text as any).titulo || JSON.stringify(text);
-                    }
-                    this.emit(SocketOpaEvent.CHAT_MESSAGE, text);
-                }
+                this.emit(SocketOpaEvent.CHAT_MESSAGE, payload);
             }
         } catch (error) {
             console.error("[SocketOpaChat] Parse Error (Message):", error);
@@ -218,7 +206,7 @@ export class SocketOpaChat extends EventEmitter {
      */
     private _handleHistoryMessages(args: any[]): void {
         // args[1] usually contains the array of messages
-        const historyList = args[1];
+        const historyList = args;
         if (Array.isArray(historyList)) {
             this.emit(SocketOpaEvent.HISTORY_LOG, historyList);
         }
