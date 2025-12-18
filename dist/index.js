@@ -190,19 +190,7 @@ class SocketOpaChat extends events_1.EventEmitter {
             // Find payload: looks for object with 'mensagem' or specific 'tipo'
             const payload = args.find(a => typeof a === 'object' && (a.mensagem || a.tipo || a.conteudo));
             if (payload) {
-                // Check for Media
-                if (payload.tipo === 'midia' && (payload.objeto || payload.conteudo)) {
-                    this.emit(types_1.SocketOpaEvent.CHAT_MEDIA, payload.objeto || payload.conteudo);
-                }
-                // Check for Text
-                else if (payload.mensagem || payload.conteudo) {
-                    let text = payload.mensagem || payload.conteudo;
-                    // Handle menu objects or other complex text structures
-                    if (typeof text === 'object') {
-                        text = text.titulo || JSON.stringify(text);
-                    }
-                    this.emit(types_1.SocketOpaEvent.CHAT_MESSAGE, text);
-                }
+                this.emit(types_1.SocketOpaEvent.CHAT_MESSAGE, payload);
             }
         }
         catch (error) {
@@ -214,7 +202,7 @@ class SocketOpaChat extends events_1.EventEmitter {
      */
     _handleHistoryMessages(args) {
         // args[1] usually contains the array of messages
-        const historyList = args[1];
+        const historyList = args;
         if (Array.isArray(historyList)) {
             this.emit(types_1.SocketOpaEvent.HISTORY_LOG, historyList);
         }
