@@ -20,8 +20,3 @@ coverage/
 .vscode/
 .idea/
 *.swp
-
-# Legacy files (we migrated to src/ + dist/)
-index.js
-index.d.ts
-verify_build.js
