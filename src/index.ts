@@ -84,7 +84,6 @@ export class SocketOpaChat extends EventEmitter {
 
             if (event === "Message") {
                 this._handleSingleMessage(args);
-                // Also emit generic message event for easier consumption
                 this.emit(SocketOpaEvent.MESSAGE, ...args);
             } else if (event === "Messages") {
                 this._handleHistoryMessages(args);
@@ -205,10 +204,16 @@ export class SocketOpaChat extends EventEmitter {
      * Handle header/history messages
      */
     private _handleHistoryMessages(args: any[]): void {
-        // args[1] usually contains the array of messages
-        const historyList = args;
-        if (Array.isArray(historyList)) {
-            this.emit(SocketOpaEvent.HISTORY_LOG, historyList);
+        try {
+            // args example: ["Message", "routeId", "status", { ... }]
+            // Find payload: looks for object with 'mensagem' or specific 'tipo'
+            const payload = args.find(arg => Array.isArray(arg));
+
+            if (payload) {
+                this.emit(SocketOpaEvent.HISTORY_LOG, payload);
+            }
+        } catch (error) {
+            console.error("[SocketOpaChat] Parse Error (Message):", error);
         }
     }
 }

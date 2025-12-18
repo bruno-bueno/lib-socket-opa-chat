@@ -99,6 +99,16 @@ Permite emitir um evento customizado "cru" (raw) para o servidor. Útil para eve
 chat.emitRaw(["meu_evento", { id: 123 }]);
 ```
 
+### `onMessage(callback)`
+Helper simplificado para escutar o evento `message` em tempo real.
+*   **callback**: `Function` - Função que recebe os argumentos da mensagem.
+
+```javascript
+chat.onMessage((...args) => {
+    console.log('Mensagem em tempo real:', args);
+});
+```
+
 ## Eventos (Listeners)
 
 A classe extende `EventEmitter`, então você pode escutar eventos usando `.on()`. Recomendamos usar o `SocketOpaEvent`.
@@ -200,12 +210,4 @@ setTimeout(() => {
 }, 2000);
 ```
 
-### `onMessage(callback)`
-Helper simplificado para escutar o evento `message` em tempo real.
-*   **callback**: `Function` - Função que recebe os argumentos da mensagem.
 
-```javascript
-chat.onMessage((...args) => {
-    console.log('Mensagem em tempo real:', args);
-});
-```
